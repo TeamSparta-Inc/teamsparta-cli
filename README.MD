@@ -20,4 +20,4 @@
 7. check(개발 예정): 필수 자원(pem key, AWS config, git config 등)위치 확인
    - update(optional)
 
-# ⚡️ Rust-Powerd ⚡️
+# ⚡️ Rust-Powered ⚡️
