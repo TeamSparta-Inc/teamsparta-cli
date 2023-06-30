@@ -11,7 +11,7 @@
 
    - service(required)
 
-4. image-resize(개발 예정): 프론트 커밋 시 자동으로 이미지 파일 사이즈 감지 및 변경
+4. image-resize(개발 예정): 이미지 파일 사이즈 측정 및 변경
    - target(required)
 5. ssh(개발 예정): ssh 커맨드라인 축약
    - service(required)
