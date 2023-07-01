@@ -4,7 +4,7 @@ use crate::{
 };
 use std::{fs, process::Stdio};
 
-pub fn run_unwatch_command(unwatch_opts: UnwatchCommand, watch_service_config: WatchServiceConfig) {
+pub fn run_unwatch(unwatch_opts: UnwatchCommand, watch_service_config: WatchServiceConfig) {
     let WatchServiceConfig { pipeline, .. } = watch_service_config;
     let pipeline_name = match unwatch_opts.service {
         WatchService::Online => pipeline.online,

@@ -79,7 +79,7 @@ pub struct UnwatchCommand {
     pub service: WatchService,
 }
 
-#[derive(Parser)]
+#[derive(Parser, Debug)]
 pub struct ResizeCommand {
     #[arg(short, long)]
     pub input: PathBuf,

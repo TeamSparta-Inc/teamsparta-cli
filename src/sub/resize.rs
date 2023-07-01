@@ -8,7 +8,9 @@ use image::{ColorType, ImageEncoder};
 
 use fast_image_resize as fr;
 
-pub fn run_resize_command(resize_opts: ResizeCommand) {
+pub fn run_resize(resize_opts: ResizeCommand) {
+    // todo 이건 걍 지우기
+    dbg!(resize_opts);
     // Read source image from file
     let img = ImageReader::open("./data/nasa-4928x3279.png")
         .unwrap()

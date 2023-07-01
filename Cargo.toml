@@ -2,7 +2,7 @@
 name = "sparta-cli"
 version = "0.1.0"
 edition = "2021"
-author = "러스트 스터디 팀원들"
+author = "TeamSparta Devs"
 about = "cli-tool for team sparta developers"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -21,3 +21,11 @@ rand = "0.8.5"
 serde = {version = "1.0.164", features = ["derive"]}
 serde_json = "1.0.97"
 tokio = {version = "1.28.2", features = ["full"]}
+
+[[bin]]
+name = "sprt"
+path = "src/main.rs"
+
+# 주의: bin으로의 경로가 아니라 bin이 위치한 directory의 경로임
+# ~/.zshrc -> export PATH=binary/located/dir:$PATH
+# reload zsh or source ~/.zshrc

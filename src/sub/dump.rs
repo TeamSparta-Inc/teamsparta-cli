@@ -5,7 +5,7 @@ use crate::{
 use colored::*;
 use std::process::{exit, Command, Stdio};
 
-pub fn run_dump_command(dump_opts: DumpCommand, dump_service_config: MongoDumpServiceConfig) {
+pub fn run_dump(dump_opts: DumpCommand, dump_service_config: MongoDumpServiceConfig) {
     let dump_instruction = match dump_opts.service {
         DumpServices::Chang => dump_service_config.chang,
         DumpServices::Hhv2 => dump_service_config.hhv2,

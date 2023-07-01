@@ -102,7 +102,7 @@ impl Default for SourceSummary {
     }
 }
 
-pub fn run_watch_command(watch_opts: WatchCommand, watch_service_config: WatchServiceConfig) {
+pub fn run_watch(watch_opts: WatchCommand, watch_service_config: WatchServiceConfig) {
     let WatchServiceConfig {pipeline, slack} = watch_service_config;
     let pipeline_name = match watch_opts.service {
         WatchService::Online => pipeline.online,
