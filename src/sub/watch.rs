@@ -7,7 +7,7 @@ use chrono::{DateTime, Utc};
 use codepipeline::{primitives, Client};
 use daemonize::Daemonize;
 use serde::Deserialize;
-use std::{str::from_utf8, process::exit, fs::{File, self}, time::Duration, time::SystemTime, process::Command};
+use std::{str::from_utf8, fs::{File, self}, time::Duration, time::SystemTime, process::Command};
 use tokio::time::sleep;
 use colored::*;
 
@@ -152,22 +152,24 @@ pub fn run_watch_command(watch_opts: WatchCommand, watch_service_config: WatchSe
 
     fs::create_dir_all(daemon_root!(pipeline_name)).unwrap();
     File::create(&daemon_pid_path).unwrap();
+
     let stdout = File::create(&stdout_path).unwrap();
     let stderr = File::create(&stderr_path).unwrap();
-
-    let daemon = Daemonize::new()
-                                    .stdout(stdout)
-                                    .stderr(stderr)
-                                    .pid_file(daemon_pid_path);
+    let daemon = 
+        Daemonize::new()
+        .stdout(stdout)
+        .stderr(stderr)
+        .pid_file(daemon_pid_path);
 
     daemon
-        .start()
-        .unwrap_or_else(|e| panic!("데몬프로세스 실행에 실패했습니다:\n{}", e));
+    .start()
+    .unwrap_or_else(|e| panic!("데몬프로세스 실행에 실패했습니다:\n{}", e));
 
-    let child_runtime = tokio::runtime::Builder::new_current_thread()
-    .enable_all()
-    .build()
-    .expect("tokio child runtime 빌드에 실패했습니다");
+    let child_runtime = 
+        tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .expect("tokio child runtime 빌드에 실패했습니다");
 
     child_runtime.block_on(async {
         let aws_config = ::aws_config::load_from_env().await;
@@ -244,19 +246,14 @@ pub fn run_watch_command(watch_opts: WatchCommand, watch_service_config: WatchSe
         ));
         println!("슬랙 웹훅 데이터:{}", body);
 
-        let curl_output = Command::new("curl")
-        .arg("-d")
-        .arg(body)
-        .arg("-H")
-        .arg("Content-Type: application/json")
-        .arg("-X")
-        .arg("POST")
-        .arg(slack.webhook_url)
-        .output()
-        .unwrap_or_else(|e| {
-            eprintln!("curl failed: {}", e); 
-            exit(1);
-        });
+        let curl_output = 
+            Command::new("curl")
+            .args(["-d", &body])
+            .args(["-H", "Content-Type: application/json"])
+            .args(["-X", "POST"])
+            .arg(slack.webhook_url)
+            .output()
+            .unwrap_or_else(|e| panic!("curl failed: {}", e));
 
         println!("{}", from_utf8(&curl_output.stdout).unwrap());
         eprintln!("{}", from_utf8(&curl_output.stderr).unwrap());
