@@ -54,7 +54,6 @@ pub fn run_dump_command(dump_opts: DumpCommand, dump_service_config: MongoDumpSe
             } else {
                 dump_instruction.target_port
             }
-            .to_string()
         ))
         .arg("--gzip")
         .arg("--archive");

@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use clap::{Parser, ValueEnum};
 
 #[derive(ValueEnum, Clone)]
@@ -29,7 +31,7 @@ pub enum WatchService {
 }
 
 #[derive(Parser)]
-#[command(author, version, about, long_about = None)]
+#[command(author, version, about, long_about = None, disable_help_flag = true)]
 pub struct Cli {
     #[command(subcommand)]
     pub subcommand: Subcommand,
@@ -49,6 +51,8 @@ pub enum Subcommand {
     Watch(WatchCommand),
     #[command(name = "unwatch", about = "AWS Codepipeline 배포 감시를 취소합니다")]
     Unwatch(UnwatchCommand),
+    #[command(name = "resize", about = "PNG, JPEG, SVG의 크기를 줄입니다.")]
+    Resize(ResizeCommand),
 }
 
 #[derive(Parser)]
@@ -73,4 +77,18 @@ pub struct WatchCommand {
 pub struct UnwatchCommand {
     #[arg(short, long)]
     pub service: WatchService,
+}
+
+#[derive(Parser)]
+pub struct ResizeCommand {
+    #[arg(short, long)]
+    pub input: PathBuf,
+    #[arg(short, long)]
+    pub output: PathBuf,
+    #[arg(short, long)]
+    pub dir: Option<bool>,
+    #[arg(short, long)]
+    pub width: usize,
+    #[arg(short, long)]
+    pub height: usize,
 }

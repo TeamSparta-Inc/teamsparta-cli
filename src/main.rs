@@ -16,5 +16,6 @@ fn main() {
         Subcommand::Unwatch(unwatch_opts) => {
             sub::unwatch::run_unwatch_command(unwatch_opts, config.watch)
         }
+        Subcommand::Resize(resize_opts) => sub::resize::run_resize_command(resize_opts),
     }
 }

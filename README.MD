@@ -8,10 +8,8 @@
    - service, s(required)
    - notify, n(optional 명시하지 않을 경우 자신에게만 알림)
 3. unwatch: watch daemon process를 종료시킨다
-
    - service, s(required)
-
-4. image-resize(개발 예정): 이미지 파일 사이즈 측정 및 변경
+4. resize(개발 예정): 이미지 파일 사이즈 측정 및 변경
    - target, t(required)
 5. ssh(개발 예정): ssh 커맨드라인 축약
    - service, s(required)

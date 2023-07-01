@@ -21,7 +21,7 @@ struct SourceSummary {
 
 macro_rules! err_msg {
     ($em:literal) => {
-        format!("{} AWS 응답의 일시적인 장애일 수 있으니 잠시 후 재시도 해보세요", $em).as_str()
+        format_args!("{} AWS 응답의 일시적인 장애일 수 있으니 잠시 후 재시도 해보세요", $em)
     };
 }
 
@@ -50,33 +50,33 @@ async fn get_last_execution_data(
 
     let latest_summary = pipeline_state_output
         .pipeline_execution_summaries()
-        .expect(err_msg!(
+        .unwrap_or_else(||panic!("{}", err_msg!(
             "파이프라인 실행 요약을 가져오는데에 실패했습니다."
-        ))
+        )))
         .get(0)
-        .expect(err_msg!(
+        .unwrap_or_else(|| panic!("{}", err_msg!(
             "가장 최근의 pipeline 실행 요약을 가져오는데에 실패했습니다."
-        ));
+        )));
 
     let revision_summary = latest_summary
         .source_revisions()
-        .expect(err_msg!(
+        .unwrap_or_else(||panic!("{}",err_msg!(
             "pipeline 실행 요약의 source revision을 가져오는데에 실패했습니다."
-        ))
+        )))
         .get(0)
-        .expect(err_msg!(
+        .unwrap_or_else(|| panic!("{}",err_msg!(
             "source revision의 최근 내역을 가져오는데에 실패했습니다."
-        ))
+        )))
         .revision_summary()
-        .expect(err_msg!(
+        .unwrap_or_else(|| panic!("{}",err_msg!(
             "최근의 source revision 요약을 가져오는데에 실패했습니다."
-        ));
+        )));
 
     let pipeline_status = latest_summary
         .status()
-        .expect(err_msg!(
+        .unwrap_or_else(|| panic!("{}",err_msg!(
             "파이프라인 실행 상태를 가져오는데에 실패했습니다."
-        ))
+        )))
         .to_owned()
         .as_str()
         .to_string();
@@ -138,7 +138,7 @@ pub fn run_watch_command(watch_opts: WatchCommand, watch_service_config: WatchSe
         let codepipeline_client = codepipeline::Client::new(&aws_config);
         let (status, ..) = get_last_execution_data(&codepipeline_client, &pipeline_name)
             .await
-            .expect(err_msg!("배포 상태 점검에 실패했습니다."));
+            .unwrap_or_else(|| panic!("{}",err_msg!("배포 상태 점검에 실패했습니다.")));
         if status != "InProgress" {
             let not_proceed_word = "배포가 진행 중이지 않기 때문에 배포를 관측할 수 없습니다. 명령을 종료합니다.".bright_blue().bold();
             println!("{}", not_proceed_word);
@@ -222,45 +222,45 @@ pub fn run_watch_command(watch_opts: WatchCommand, watch_service_config: WatchSe
                     .unwrap_or(name)
             })
             .fold(
-                String::from(format!(" <@{}>",slack.user_id)),
+                format!(" <@{}>",slack.user_id),
                 |user_ids, user_id_or_name| format!("{}<@{}>", user_ids, user_id_or_name),
             );
      
 
         println!("배포 결과를 슬랙에 알리기 위해 시도합니다");
-            let body = format!("{{\"text\":\"{}\"}}", format!(
-                "{}\n{}: {}\n🛫: {}\n🛬: {}\n📋: {}\n🎯:{}",
-                webhook_prefix,
-                pipeline_name,
-                match &status[..] {
-                    "Succeeded" => "🟢",
-                    "InProgress" => "🟠",
-                    _ => "🔴"
-                },
-                start_time_str.format("%Y-%m-%d %H:%M:%S"),
-                last_update_time_str.format("%Y-%m-%d %H:%M:%S"),
-                commit_message,
-                notify_ids
-            ));
-            println!("슬랙 웹훅 데이터:{}", body);
+        let body = format!("{{\"text\":\"{}\"}}", format_args!(
+            "{}\n{}: {}\n🛫: {}\n🛬: {}\n📋: {}\n🎯:{}",
+            webhook_prefix,
+            pipeline_name,
+            match &status[..] {
+                "Succeeded" => "🟢",
+                "InProgress" => "🟠",
+                _ => "🔴"
+            },
+            start_time_str.format("%Y-%m-%d %H:%M:%S"),
+            last_update_time_str.format("%Y-%m-%d %H:%M:%S"),
+            commit_message,
+            notify_ids
+        ));
+        println!("슬랙 웹훅 데이터:{}", body);
 
-            let curl_output = Command::new("curl")
-            .arg("-d")
-            .arg(body)
-            .arg("-H")
-            .arg("Content-Type: application/json")
-            .arg("-X")
-            .arg("POST")
-            .arg(slack.webhook_url)
-            .output()
-            .unwrap_or_else(|e| {
-                eprintln!("curl failed: {}", e); 
-                exit(1);
-            });
+        let curl_output = Command::new("curl")
+        .arg("-d")
+        .arg(body)
+        .arg("-H")
+        .arg("Content-Type: application/json")
+        .arg("-X")
+        .arg("POST")
+        .arg(slack.webhook_url)
+        .output()
+        .unwrap_or_else(|e| {
+            eprintln!("curl failed: {}", e); 
+            exit(1);
+        });
 
-            println!("{}", from_utf8(&curl_output.stdout).unwrap());
-            eprintln!("{}", from_utf8(&curl_output.stderr).unwrap());
-            println!("슬랙 전송 시도 완료");
+        println!("{}", from_utf8(&curl_output.stdout).unwrap());
+        eprintln!("{}", from_utf8(&curl_output.stderr).unwrap());
+        println!("슬랙 전송 시도 완료");
     });
 }
 
