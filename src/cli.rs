@@ -51,7 +51,7 @@ pub enum Subcommand {
     Watch(WatchCommand),
     #[command(name = "unwatch", about = "AWS Codepipeline 배포 감시를 취소합니다")]
     Unwatch(UnwatchCommand),
-    #[command(name = "resize", about = "PNG, JPEG, SVG의 크기를 줄입니다.")]
+    #[command(name = "resize", about = "이미지 파일 사이즈 변경")]
     Resize(ResizeCommand),
 }
 

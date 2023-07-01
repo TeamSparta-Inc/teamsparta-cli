@@ -9,7 +9,7 @@
    - notify, n: multiple string(optional 명시하지 않을 경우 자신에게만 알림)
 3. unwatch: watch daemon process를 종료시킨다
    - service, s: string enum
-4. resize(개발 예정): 이미지 파일 사이즈 측정 및 변경
+4. resize(개발 예정): 이미지 파일 사이즈 변경
    - input, i: path string
    - output, o: path string
    - width, w: number
