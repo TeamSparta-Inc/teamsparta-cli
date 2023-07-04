@@ -50,7 +50,14 @@ pub fn run_compress(compress_opts: CompressCommand) {
                     .and_then(|os_str| os_str.to_str());
 
                 match ext {
-                    Some("png") => Some(file_name.to_str().unwrap().to_string()),
+                    Some("png") => Some(
+                        file_name
+                            .to_str()
+                            .unwrap_or_else(|| {
+                                panic!("파일명을 str로 형변환 하는 과정에서 실패했습니다")
+                            })
+                            .to_string(),
+                    ),
                     _ => None,
                 }
             })
@@ -75,7 +82,7 @@ pub fn run_compress(compress_opts: CompressCommand) {
     } in targets
     {
         if compress_opts.drop_color {
-            let png = image::open(input_path)
+            let png = image::open(&input_path)
                 .unwrap_or_else(|e| panic!("PNG 파일 열기에 실패했습니다:\n{e:?}"))
                 .to_rgba8();
             let (width, height) = png.dimensions();
@@ -102,7 +109,11 @@ pub fn run_compress(compress_opts: CompressCommand) {
                     panic!("image quant 압축 시도 중 압축 속도 설정에 실패했습니다:\n{e:?}",)
                 });
 
-            img_q.set_quality(0, compress_opts.quality as u8).unwrap();
+            img_q
+                .set_quality(0, compress_opts.quality as u8)
+                .unwrap_or_else(|e| {
+                    panic!("quantize를 실행할 quality 설정에 실패했습니다:\n{e:?}")
+                });
 
             let mut qt_result = match img_q.quantize(&mut described_bitmap) {
                 Ok(res) => res,
@@ -114,7 +125,9 @@ pub fn run_compress(compress_opts: CompressCommand) {
                 panic!("image quant 압축 중 dithering 레벨 설정에 실패했습니다:\n{e:?}")
             });
 
-            let (palette, pixels) = qt_result.remapped(&mut described_bitmap).unwrap();
+            let (palette, pixels) = qt_result
+                .remapped(&mut described_bitmap)
+                .unwrap_or_else(|e| panic!("quantize result unwrap을 실패했니다:\n{e:?}",));
 
             let mut new_png: RgbaImage = RgbaImage::new(width, height);
 
@@ -123,7 +136,8 @@ pub fn run_compress(compress_opts: CompressCommand) {
                 *pixel = image::Rgba([color.r, color.g, color.b, color.a]);
             }
 
-            let output_file = fs::File::create(output_path).unwrap();
+            let output_file = fs::File::create(&output_path)
+                .unwrap_or_else(|e| panic!("파일 생성에 실패했습니다:\n{e:?}"));
             let png_encoder = PngEncoder::new_with_quality(
                 output_file,
                 CompressionType::Best,
@@ -132,14 +146,18 @@ pub fn run_compress(compress_opts: CompressCommand) {
 
             png_encoder
                 .write_image(&new_png.into_raw(), width, height, image::ColorType::Rgba8)
-                .unwrap();
+                .unwrap_or_else(|e| {
+                    panic!("png encoder에 png 데이터를 쓰는 도중 실패했습니다:\n{e:?}")
+                });
+
+            println!("손실 압축 🟢: {:?} -> {:?}", input_path, output_path)
         } else {
             let (in_file, out_file) = (InFile::Path(input_path), OutFile::Path(Some(output_path)));
 
             match optimize(&in_file, &out_file, &options) {
-                Ok(_) => println!("🟢\n{in_file} -> {out_file:#?}"),
+                Ok(_) => println!("무손실 압축 🟢: {in_file} -> {out_file:#?}"),
                 Err(_) => {
-                    println!("🔴\n{in_file}")
+                    eprintln!("무손실 압축🔴: {in_file}")
                 }
             };
         }
