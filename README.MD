@@ -13,7 +13,7 @@
 
    - input-dir, i: path string
    - output-dir, o: path string
-   - file-name, f: string(optional \*.{jpeg|png})
+   - file-name, f: string(optional 명시하지 않을 경우 input-dir 내 모든 jpeg와 png파일을 압축 \*.{jpeg|png})
    - width, w: number(u32)
    - height, h: number(u32)
 
@@ -22,7 +22,7 @@
 
    - input-dir, i: path string
    - output-dir, o: path string
-   - file-name, f: string (optional)
+   - file-name, f: string (optional 명시하지 않을 경우 input-dir 내 모든 png 파일 압축)
    - (무손실 압축시) level, l: number (optional 압축율(1~12). 높을수록 더 압축. 기본값 12)
    - --drop-color: 손실 압축 명시 (축약형 명령어 없음)
      - (손실 압축시) quality, q: 품질 최댓값(optional 1~100)(default:65, 최솟값은 0 고정)
