@@ -18,7 +18,8 @@
    - height, h: number(u32)
 
 5. compress: png파일 무손실/손실 압축
-   **손실 압축시 파일 크기는 매우 작아지지만 컬러가 RGB8로 고정됩니다(tiny-png방식. quantize 알고리즘 사용)**
+
+   (**손실 압축시 파일 크기는 매우 작아지지만 컬러가 RGB8로 고정됩니다(tiny-png방식. quantize 알고리즘 사용)**)
 
    - input-dir, i: path string
    - output-dir, o: path string
