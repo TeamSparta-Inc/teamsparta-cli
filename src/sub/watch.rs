@@ -7,7 +7,7 @@ use chrono::{DateTime, Utc};
 use codepipeline::{primitives, Client};
 use daemonize::Daemonize;
 use serde::Deserialize;
-use std::{str::from_utf8, fs::{File, self}, time::Duration, time::SystemTime, process::Command};
+use std::{str::from_utf8, fs::{File, self}, time::Duration, time::SystemTime, process::Command, path};
 use tokio::time::sleep;
 use colored::*;
 
@@ -130,10 +130,17 @@ pub fn run_watch(watch_opts: WatchCommand, watch_service_config: WatchServiceCon
     ) = (
             daemon_root!("daemon.stdout.log"), 
             daemon_root!("daemon.stderr.log"), 
-            format!("{}/{}",daemon_root!(pipeline_name), "daemon.pid")
+            format!("{}/{}", daemon_root!(pipeline_name), "daemon.pid")
         );
 
     parent_runtime.block_on(async {
+        if let Ok(exists) = path::Path::new(&daemon_pid_path).try_exists() {
+            if exists {
+                println!("이미 해당 작업이 실행중입니다. 만약 문제가 있다면 unwatch 명령어를 실행하신 후에 재시도해주세요");
+                std::process::exit(0);
+            }
+        }
+
         let aws_config = ::aws_config::load_from_env().await;
         let codepipeline_client = codepipeline::Client::new(&aws_config);
         let (status, ..) = get_last_execution_data(&codepipeline_client, &pipeline_name)
@@ -159,7 +166,7 @@ pub fn run_watch(watch_opts: WatchCommand, watch_service_config: WatchServiceCon
         Daemonize::new()
         .stdout(stdout)
         .stderr(stderr)
-        .pid_file(daemon_pid_path);
+        .pid_file(&daemon_pid_path);
 
     daemon
     .start()
@@ -178,7 +185,6 @@ pub fn run_watch(watch_opts: WatchCommand, watch_service_config: WatchServiceCon
         let start_utc = Utc::now().timestamp_millis();
         
         let (status, start_time, last_update_time, commit_message) = loop {
-            println!("15초 후 관측을 시도합니다.");
             sleep(Duration::from_secs(15)).await;
 
             let mut retried = 0;
@@ -187,19 +193,15 @@ pub fn run_watch(watch_opts: WatchCommand, watch_service_config: WatchServiceCon
                     get_last_execution_data(&codepipeline_client, &pipeline_name).await;
 
                 if let Some(v) = last_execution_data {
-                    println!("관측에 성공했습니다.");
                     break v;
                 }
                 if retried > 5 {
-                    println!("관측에 실패했습니다. 재시도 최대 횟수에 도달했습니다. 백그라운드 프로세스를 종료합니다.");
                     panic!("AWS Codepipeline 정보를 가져오는데에 실패했습니다.")
                 }
-                println!("관측에 실패했습니다. 재시도합니다.");
                 retried += 1;
             };
 
             if pipeline_info.0 != "InProgress" || start_utc - Utc::now().timestamp_millis() > 1000 * 60 * 30 {
-                println!("관측을 종료합니다.");
                 break pipeline_info;
             }
         };
@@ -207,10 +209,8 @@ pub fn run_watch(watch_opts: WatchCommand, watch_service_config: WatchServiceCon
         let start_time_str: DateTime<Utc> = SystemTime::try_from(start_time).unwrap().into();
         let last_update_time_str: DateTime<Utc> = SystemTime::try_from(last_update_time).unwrap().into();
         let webhook_prefix = if status == "InProgress" {
-            println!("시간 경과(30분)에 의한 종료");
             "배포가 시작된지 30분이 경과했지만 종료되지 않았습니다. 직접 상태를 확인해주세요. 배포 관측 작업을 종료합니다."
         } else {
-            println!("배포 성공 혹은 실패로 인한 종료");
             "배포가 종료되었습니다."
         };
 
@@ -227,9 +227,7 @@ pub fn run_watch(watch_opts: WatchCommand, watch_service_config: WatchServiceCon
                 format!(" <@{}>",slack.user_id),
                 |user_ids, user_id_or_name| format!("{}<@{}>", user_ids, user_id_or_name),
             );
-     
 
-        println!("배포 결과를 슬랙에 알리기 위해 시도합니다");
         let body = format!("{{\"text\":\"{}\"}}", format_args!(
             "{}\n{}: {}\n🛫: {}\n🛬: {}\n📋: {}\n🎯:{}",
             webhook_prefix,
@@ -244,7 +242,6 @@ pub fn run_watch(watch_opts: WatchCommand, watch_service_config: WatchServiceCon
             commit_message,
             notify_ids
         ));
-        println!("슬랙 웹훅 데이터:{}", body);
 
         let curl_output = 
             Command::new("curl")
@@ -257,7 +254,8 @@ pub fn run_watch(watch_opts: WatchCommand, watch_service_config: WatchServiceCon
 
         println!("{}", from_utf8(&curl_output.stdout).unwrap());
         eprintln!("{}", from_utf8(&curl_output.stderr).unwrap());
-        println!("슬랙 전송 시도 완료");
+
+        fs::remove_file(daemon_pid_path).unwrap_or_else(|e|panic!("pid 파일 제거에 실패했습니다:{}", e));
     });
 }
 

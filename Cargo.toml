@@ -17,6 +17,8 @@ daemonize = "0.5.0"
 dotenv = "0.15.0"
 fast_image_resize = "2.7.3"
 image = "0.24.6"
+imagequant = "4.2.0"
+oxipng = "8.0.0"
 rand = "0.8.5"
 serde = {version = "1.0.164", features = ["derive"]}
 serde_json = "1.0.97"
@@ -25,6 +27,12 @@ tokio = {version = "1.28.2", features = ["full"]}
 [[bin]]
 name = "sprt"
 path = "src/main.rs"
+
+[profile.release]
+lto = true
+strip = true
+opt-level = "s"
+codegen-units = 1
 
 # 주의: bin으로의 경로가 아니라 bin이 위치한 directory의 경로임
 # ~/.zshrc -> export PATH=binary/located/dir:$PATH

@@ -53,6 +53,7 @@ pub enum Subcommand {
     Unwatch(UnwatchCommand),
     #[command(name = "resize", about = "이미지 파일 사이즈 변경")]
     Resize(ResizeCommand),
+    Compress(CompressCommand),
 }
 
 #[derive(Parser)]
@@ -79,16 +80,34 @@ pub struct UnwatchCommand {
     pub service: WatchService,
 }
 
-#[derive(Parser, Debug)]
+#[derive(Parser)]
 pub struct ResizeCommand {
     #[arg(short, long)]
-    pub input: PathBuf,
+    pub input_dir: PathBuf,
     #[arg(short, long)]
-    pub output: PathBuf,
+    pub output_dir: PathBuf,
     #[arg(short, long)]
-    pub dir: Option<bool>,
+    pub width: u32,
     #[arg(short, long)]
-    pub width: usize,
+    pub height: u32,
     #[arg(short, long)]
-    pub height: usize,
+    pub file_name: Option<String>,
+}
+
+#[derive(Parser)]
+pub struct CompressCommand {
+    #[arg(short, long)]
+    pub input_dir: PathBuf,
+    #[arg(short, long)]
+    pub output_dir: PathBuf,
+    #[arg(short, long)]
+    pub file_name: Option<String>,
+    #[arg(short, long, default_value_t = 12, value_parser = 1..=12)]
+    pub level: i64,
+    #[arg(long)]
+    pub drop_color: bool,
+    #[arg(short, long, default_value_t = 4, value_parser = 1..=10)]
+    pub speed: i64,
+    #[arg(short, long, default_value_t = 65, value_parser = 1..=100)]
+    pub quality: i64,
 }

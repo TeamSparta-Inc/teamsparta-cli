@@ -56,7 +56,7 @@ pub struct SlackInstruction {
 impl Config {
     pub fn new() -> Result<Config> {
         let config_file =
-            fs::read_to_string("./src/config.json").expect("config file did not found");
+            fs::read_to_string("/etc/sprt/config.json").expect("config file did not found");
         let config: Config = serde_json::from_str(&config_file)
             .expect("config.json file properties lacks for this program");
 

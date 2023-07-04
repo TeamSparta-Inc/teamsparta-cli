@@ -15,5 +15,6 @@ fn main() {
         Subcommand::Watch(watch_opts) => sub::watch::run_watch(watch_opts, config.watch),
         Subcommand::Unwatch(unwatch_opts) => sub::unwatch::run_unwatch(unwatch_opts, config.watch),
         Subcommand::Resize(resize_opts) => sub::resize::run_resize(resize_opts),
+        Subcommand::Compress(compress_opts) => sub::compress::run_compress(compress_opts),
     }
 }
