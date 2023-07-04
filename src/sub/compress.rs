@@ -3,7 +3,7 @@ use image::{
     codecs::png::{CompressionType, FilterType, PngEncoder},
     ImageEncoder, RgbaImage,
 };
-use imagequant::*;
+use imagequant::RGBA;
 use oxipng::{optimize, InFile, Options, OutFile};
 use std::{
     fs::{self, read_dir},
