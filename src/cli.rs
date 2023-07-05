@@ -54,6 +54,7 @@ pub enum Subcommand {
     #[command(name = "resize", about = "이미지 파일 사이즈 변경")]
     Resize(ResizeCommand),
     Compress(CompressCommand),
+    Unused(UnusedCommand),
 }
 
 #[derive(Parser)]
@@ -110,4 +111,18 @@ pub struct CompressCommand {
     pub speed: i64,
     #[arg(short, long, default_value_t = 65, value_parser = 1..=100)]
     pub quality: i64,
+}
+
+#[derive(Parser)]
+pub struct UnusedCommand {
+    #[arg(short, long)]
+    pub delete: bool,
+    #[arg(long)]
+    pub asset_dir: PathBuf,
+    #[arg(long)]
+    pub target_dir: PathBuf,
+    #[arg(short, long)]
+    pub asset_depth: i64,
+    #[arg(short, long)]
+    pub target_depth: i64,
 }

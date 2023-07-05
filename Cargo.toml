@@ -23,6 +23,7 @@ rand = "0.8.5"
 serde = {version = "1.0.164", features = ["derive"]}
 serde_json = "1.0.97"
 tokio = {version = "1.28.2", features = ["full"]}
+walkdir = "2.3.3"
 
 [[bin]]
 name = "sprt"
