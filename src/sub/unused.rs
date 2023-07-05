@@ -7,77 +7,70 @@ use std::{
 use walkdir::WalkDir;
 
 use crate::cli::UnusedCommand;
-fn is_asset(str_file_name: Option<&str>) -> bool {
-    str_file_name
-        .map(|s| {
-            let len = s.len();
-            if len >= 5 {
-                let last_3 = s.get(len - 3..).unwrap_or("");
-                let last_4 = s.get(len - 4..).unwrap_or("");
+fn match_asset_ext(ext: &str) -> bool {
+    ext == "png"
+        || ext == "jpg"
+        || ext == "ico"
+        || ext == "svg"
+        || ext == "mp3"
+        || ext == "jpeg"
+        || ext == "xml"
+}
 
-                !last_3.is_empty()
-                    && (last_3 == "png"
-                        || last_3 == "jpg"
-                        || last_3 == "ico"
-                        || last_3 == "svg"
-                        || last_3 == "mp3"
-                        || last_4 == "jpeg")
-            } else {
-                false
-            }
-        })
-        .unwrap_or(false)
+fn match_code_ext(ext: &str) -> bool {
+    ext == "ts" || ext == "js" || ext == "css" || ext == "tsx" || ext == "jsx" || ext == "scss"
+}
+fn contains_asset_ext(s: &str) -> bool {
+    s.contains("png")
+        || s.contains("jpg")
+        || s.contains("ico")
+        || s.contains("svg")
+        || s.contains("mp3")
+        || s.contains("jpeg")
+        || s.contains("xml")
 }
 
 fn make_asset_set(
     asset_dir: &PathBuf,
-    search_depth: &i64,
     asset_set: &mut HashSet<Box<OsString>>,
     asset_map: &mut HashMap<Box<OsString>, PathBuf>,
 ) {
     let entries = WalkDir::new(asset_dir)
-        .min_depth(1)
-        .max_depth(search_depth.to_owned() as usize)
         .into_iter()
         .filter_map(|entry| entry.ok());
 
     for entry in entries {
         let file_type = entry.file_type();
-        let str_file_name = entry.file_name().to_str();
-        let is_hidden = str_file_name.map(|s| s.starts_with('.')).unwrap_or(false);
 
-        if file_type.is_file() && !is_hidden && is_asset(str_file_name) {
-            let file_name = Box::new(entry.file_name().to_owned());
-            asset_map.insert(file_name.clone(), entry.into_path());
-            asset_set.insert(file_name);
+        if file_type.is_file() {
+            let ext = entry.path().extension().unwrap().to_string_lossy();
+            if match_asset_ext(&ext) {
+                let file_name = Box::new(entry.file_name().to_owned());
+                asset_map.insert(file_name.clone(), entry.into_path());
+                asset_set.insert(file_name);
+            }
         }
     }
 }
 
-fn search_assets(target_dir: &PathBuf, search_depth: &i64, asset_set: &mut HashSet<Box<OsString>>) {
+fn search_assets(target_dir: &PathBuf, asset_set: &mut HashSet<Box<OsString>>) {
     let entries = WalkDir::new(target_dir)
-        .min_depth(1)
-        .max_depth(search_depth.to_owned() as usize)
         .into_iter()
         .filter_map(|entry| entry.ok());
 
     for entry in entries {
         let file_type = entry.file_type();
-        let str_file_name = entry.file_name().to_str();
-        let is_hidden = str_file_name.map(|s| s.starts_with('.')).unwrap_or(false);
 
-        if file_type.is_file() && !is_hidden && !is_asset(str_file_name) {
-            let file_content = read_to_string(entry.path()).unwrap_or(String::new());
-            if file_content.is_empty() {
-                continue;
-            }
-
-            let asset_clone = asset_set.clone();
-            let search_keys = asset_clone.iter();
-
-            for key in search_keys {
-                if file_content.contains(key.to_str().unwrap()) {
-                    asset_set.remove(key);
+        if file_type.is_file() {
+            let ext = entry.path().extension().unwrap().to_string_lossy();
+            if match_code_ext(&ext) {
+                let file_content = read_to_string(entry.path()).unwrap_or(String::new());
+                if contains_asset_ext(&file_content) {
+                    for key in asset_set.clone().into_iter() {
+                        if file_content.contains(key.to_str().unwrap()) {
+                            asset_set.remove(&key);
+                        }
+                    }
                 }
             }
         }
@@ -88,20 +81,15 @@ pub fn run_unused(unused_opts: UnusedCommand) {
     let mut asset_set: HashSet<Box<OsString>> = HashSet::new();
     let mut asset_map: HashMap<Box<OsString>, PathBuf> = HashMap::new();
 
-    make_asset_set(
-        &unused_opts.asset_dir,
-        &unused_opts.asset_depth,
-        &mut asset_set,
-        &mut asset_map,
-    );
+    for asset_dir in &unused_opts.asset_dirs {
+        make_asset_set(asset_dir, &mut asset_set, &mut asset_map);
+    }
 
     let all_asset_len = asset_set.len();
 
-    search_assets(
-        &unused_opts.target_dir,
-        &unused_opts.target_depth,
-        &mut asset_set,
-    );
+    for target_dir in &unused_opts.target_dirs {
+        search_assets(target_dir, &mut asset_set);
+    }
 
     let unused_len = asset_set.len();
 
@@ -119,6 +107,6 @@ pub fn run_unused(unused_opts: UnusedCommand) {
             all_asset_len - unused_len
         );
     } else {
-        println!("{:#?}", asset_set);
+        println!("{:#?}\n{}", asset_set, asset_set.len());
     }
 }

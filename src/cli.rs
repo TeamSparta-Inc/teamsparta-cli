@@ -117,12 +117,8 @@ pub struct CompressCommand {
 pub struct UnusedCommand {
     #[arg(short, long)]
     pub delete: bool,
-    #[arg(long)]
-    pub asset_dir: PathBuf,
-    #[arg(long)]
-    pub target_dir: PathBuf,
-    #[arg(short, long)]
-    pub asset_depth: i64,
-    #[arg(short, long)]
-    pub target_depth: i64,
+    #[arg(short, long, num_args(1..))]
+    pub asset_dirs: Vec<PathBuf>,
+    #[arg(short, long, num_args(1..))]
+    pub target_dirs: Vec<PathBuf>,
 }
