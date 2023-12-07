@@ -4,3 +4,4 @@ test.*
 .env
 node_modules
 *.tar.gz
+dist
