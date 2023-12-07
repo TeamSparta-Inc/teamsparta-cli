@@ -30,17 +30,11 @@
      - (손실 압축시) quality, q: 품질 최댓값(optional 1~100)(default:65, 최솟값은 0 고정)
      - (손실 압축시) speed, s: 압축 속도(optional 1~10, 기본 값: 4, 속도를 희생해서 압축률을 높일 수 있습니다)
 
-4. unused(개발 예정)
-   - delete, d: 사용하지 않는 애셋이 발견되면 삭제(invoke). 명시되지 않을 경우 애셋 목록 출력
-   - target-dir, t: 탐색할 디렉토리
-   - recursive, r: target-dir로부터 재귀적으로 탐색(optional)
-5. ssh(개발 예정): ssh 커맨드라인 축약
+4. ssh(개발 예정): ssh 커맨드라인 축약
    - service, s: string enum
-6. onboarding(개발 예정): 온보딩 프로세스 출력 및 체크
+5. onboarding(개발 예정): 온보딩 프로세스 출력 및 체크
    - done, d: invoke (optional)
-7. check(개발 예정): 필수 자원(pem key, AWS config, git config 등)위치 확인
+6. check(개발 예정): 필수 자원(pem key, AWS config, git config 등)위치 확인
    - update, u: invoke (optional)
 
 # ⚡️ Rust-Powered ⚡️
-
-예이~

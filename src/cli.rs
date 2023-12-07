@@ -17,8 +17,9 @@ pub enum Subcommand {
     Dump(DumpCommand),
     #[command(name = "resize", about = "이미지 파일 사이즈 변경")]
     Resize(ResizeCommand),
+    #[command(name = "comperss", about = "이미지 손실/무손실 압축")]
     Compress(CompressCommand),
-    Unused(UnusedCommand),
+    #[command(name = "webpify", about = "png/jpeg를 webp로 변환")]
     Webpify(WebpifyCommand),
 }
 
@@ -69,24 +70,13 @@ pub struct CompressCommand {
     pub file_name: Option<String>,
     #[arg(short, long, default_value_t = 12, value_parser = 1..=12)]
     pub level: i64,
-    #[arg(long, default_value_t = true)]
-    pub drop_color: bool,
+    #[arg(short, long)]
+    pub lossy: bool,
     #[arg(short, long, default_value_t = 4, value_parser = 1..=10)]
     pub speed: i64,
     #[arg(short, long, default_value_t = 65, value_parser = 1..=100)]
     pub quality: i64,
 }
-
-#[derive(Parser)]
-pub struct UnusedCommand {
-    #[arg(short, long)]
-    pub delete: bool,
-    #[arg(short, long, num_args(1..))]
-    pub asset_dirs: Vec<PathBuf>,
-    #[arg(short, long, num_args(1..))]
-    pub target_dirs: Vec<PathBuf>,
-}
-
 #[derive(Parser)]
 pub struct WebpifyCommand {
     #[arg(short, long, num_args(1..))]

@@ -14,7 +14,6 @@ fn main() {
         Subcommand::Dump(dump_opts) => sub::dump::run_dump(dump_opts, config.mongo_dump),
         Subcommand::Resize(resize_opts) => sub::resize::run_resize(resize_opts),
         Subcommand::Compress(compress_opts) => sub::compress::run_compress(compress_opts),
-        Subcommand::Unused(unused_opts) => sub::unused::run_unused(unused_opts),
         Subcommand::Webpify(webpify_opts) => sub::webpify::run_webpify(webpify_opts),
     }
 }
