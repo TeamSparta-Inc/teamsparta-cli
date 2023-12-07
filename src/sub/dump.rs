@@ -25,14 +25,10 @@ pub fn run_dump(dump_opts: DumpCommand, dump_service_config: MongoDumpServiceCon
         .arg(format!("--uri={}", dump_instruction.uri));
 
     let collection_targeted = {
-        if dump_opts.collection.is_some() {
-            dump_opts
-                .collection
-                .unwrap()
-                .iter()
-                .fold(with_default_options, |base, collection| {
-                    base.arg(format!("--collection={}", collection))
-                })
+        if let Some(cols) = dump_opts.collection {
+            cols.iter().fold(with_default_options, |base, collection| {
+                base.arg(format!("--collection={}", collection))
+            })
         } else {
             dump_instruction
                 .excludes
@@ -49,8 +45,8 @@ pub fn run_dump(dump_opts: DumpCommand, dump_service_config: MongoDumpServiceCon
         .arg("-h")
         .arg(format!(
             "0.0.0.0:{}",
-            if dump_opts.port.is_some() {
-                dump_opts.port.unwrap()
+            if let Some(port) = dump_opts.port {
+                port
             } else {
                 dump_instruction.target_port
             }

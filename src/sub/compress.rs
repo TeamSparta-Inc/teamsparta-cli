@@ -19,6 +19,9 @@ struct PngCompressMeta {
 pub fn run_compress(compress_opts: CompressCommand) {
     let input_dir: Rc<PathBuf> = Rc::from(compress_opts.input_dir);
     let output_dir: Rc<PathBuf> = Rc::from(compress_opts.output_dir);
+
+    std::fs::create_dir_all(Rc::clone(&output_dir).to_path_buf()).unwrap();
+
     let options = Options::from_preset(compress_opts.level as u8);
 
     let targets = if let Some(file_name) = compress_opts.file_name {
