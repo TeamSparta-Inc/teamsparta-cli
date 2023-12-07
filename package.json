@@ -1,6 +1,6 @@
 {
   "name": "sparta-cli",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "cli tool",
   "main": "index.js",
   "scripts": {

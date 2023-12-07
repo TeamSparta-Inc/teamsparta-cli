@@ -15,9 +15,12 @@ pub enum Subcommand {
         about = "production DB로부터 local로 mongodump를 실행합니다"
     )]
     Dump(DumpCommand),
-    #[command(name = "resize", about = "이미지 파일 사이즈 변경")]
+    #[command(name = "resize", about = "이미지 파일 해상도 변경")]
     Resize(ResizeCommand),
-    #[command(name = "comperss", about = "이미지 손실/무손실 압축")]
+    #[command(
+        name = "comperss",
+        about = "이미지 손실/무손실 압축(손실 압축시 tiny png 사이트 방식)"
+    )]
     Compress(CompressCommand),
     #[command(name = "webpify", about = "png/jpeg를 webp로 변환")]
     Webpify(WebpifyCommand),

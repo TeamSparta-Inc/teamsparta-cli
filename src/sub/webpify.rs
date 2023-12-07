@@ -1,34 +1,24 @@
 use image::io::Reader as ImageReader;
 use image::{DynamicImage, EncodableLayout};
-use webp::{Encoder, WebPMemory};
-
 use std::fs::File;
 use std::io::Write;
-
 use walkdir::WalkDir;
+use webp::{Encoder, WebPMemory};
 
 use crate::cli::WebpifyCommand;
 
 fn is_jpeg_or_png(ext: &str) -> bool {
     ext == "png" || ext == "jpeg" || ext == "jpg"
 }
-/*
-    Function which converts an image in PNG or JPEG format to WEBP.
-    :param file_path: &String with the path to the image to convert.
-    :return Option<String>: Return the path of the WEBP-image as String when succesfull, returns None if function fails.
-*/
+
 pub fn run_webpify(webpify_opts: WebpifyCommand) {
+    std::fs::create_dir_all(&webpify_opts.output_dir).unwrap();
+
     // Open path as DynamicImage
     let entries = WalkDir::new(webpify_opts.input_dir)
         .into_iter()
         .filter_map(|entry| entry.ok());
     // Put webp-image in a separate webp-folder in the location of the original image.
-    match std::fs::create_dir_all(&webpify_opts.output_dir) {
-        Ok(_) => {}
-        Err(e) => {
-            panic!("Error {}", e);
-        }
-    }
 
     entries.for_each(|file| {
         if file.file_type().is_file() {

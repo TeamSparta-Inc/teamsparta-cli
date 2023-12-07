@@ -26,15 +26,20 @@
    - output-dir, o: path string
    - file-name, f: string (optional 명시하지 않을 경우 input-dir 내 모든 png 파일 압축)
    - (무손실 압축시) level, l: number (optional 압축율(1~12). 높을수록 더 압축. 기본값 12)
-   - --drop-color: 손실 압축 명시 (축약형 명령어 없음, 기본값 true)
+   - lossy, l: 손실 압축 명시
      - (손실 압축시) quality, q: 품질 최댓값(optional 1~100)(default:65, 최솟값은 0 고정)
      - (손실 압축시) speed, s: 압축 속도(optional 1~10, 기본 값: 4, 속도를 희생해서 압축률을 높일 수 있습니다)
 
-4. ssh(개발 예정): ssh 커맨드라인 축약
+4. webpify
+
+   - input-dir, i: path string
+   - output-dir, o: path string
+
+5. ssh(개발 예정): ssh 커맨드라인 축약
    - service, s: string enum
-5. onboarding(개발 예정): 온보딩 프로세스 출력 및 체크
+6. onboarding(개발 예정): 온보딩 프로세스 출력 및 체크
    - done, d: invoke (optional)
-6. check(개발 예정): 필수 자원(pem key, AWS config, git config 등)위치 확인
+7. check(개발 예정): 필수 자원(pem key, AWS config, git config 등)위치 확인
    - update, u: invoke (optional)
 
 # ⚡️ Rust-Powered ⚡️
