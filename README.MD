@@ -1,5 +1,7 @@
 # Team Sparta CLI
 
+## private으로 npm에 publish됩니다. package에 접근할 수 있더라도 다시 git repository가 private이므로 접근 권한이 없으면 에러가 나게 됩니다. @teamsparta organization에 가입되어 있으며, 로그인 되어 있고, git에 적절한 유저로 로그인되어 있는지 확인해주세요
+
 1. dump: 프로덕션 데이터베이스로부터 로컬로 덤프
 
    - service, s: string enum

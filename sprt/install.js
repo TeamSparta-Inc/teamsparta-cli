@@ -1,0 +1,1 @@
+require("./get.binary")().install();

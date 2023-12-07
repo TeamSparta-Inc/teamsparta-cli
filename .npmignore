@@ -1,5 +1,7 @@
+src
 target
-!target/release/sprt
 .env
 Cargo.*
 config.*
+node_modules
+.vscode

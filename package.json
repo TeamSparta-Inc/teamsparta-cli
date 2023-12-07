@@ -1,17 +1,24 @@
 {
   "name": "sparta-cli",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "cli tool",
   "main": "index.js",
-  "bin": {
-    "sprt": "./target/release/sprt"
-  },
   "scripts": {
-    "run": "./target/release/sprt"
+    "postinstall": "node sprt/install.js",
+    "preinstall": "node sprt/uninstall.js"
+  },
+  "bin": {
+    "sprt": "sprt/run.js"
   },
   "keywords": [
     "cli"
   ],
+  "files": [
+    "sprt/**/*"
+  ],
   "author": "js.byeon@teamsparta.co",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "binary-install": "^1.1.0"
+  }
 }
