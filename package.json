@@ -1,0 +1,16 @@
+{
+  "name": "sparta-cli",
+  "version": "1.0.0",
+  "description": "sparta dev cli",
+  "scripts": {
+    "test": "none"
+  },
+  "bin": {
+    "sprt": "target/release/sprt"
+  },
+  "keywords": [
+    "cli"
+  ],
+  "author": "js.byeon@teamsparta.co",
+  "license": "ISC"
+}
