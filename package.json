@@ -1,12 +1,12 @@
 {
-  "name": "sparta-cli",
+  "name": "@teamsparta/sparta-cli",
   "version": "1.0.0",
   "description": "sparta dev cli",
   "scripts": {
     "test": "none"
   },
   "bin": {
-    "sprt": "target/release/sprt"
+    "sprt": "./target/release/sprt"
   },
   "keywords": [
     "cli"

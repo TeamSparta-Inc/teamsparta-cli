@@ -4,3 +4,7 @@ image_output
 src
 target
 !target/release/sprt
+.env
+Cargo.*
+config.*
+.gitignore
