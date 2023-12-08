@@ -84,7 +84,7 @@ pub fn run_compress(compress_opts: CompressCommand) {
         output_path,
     } in targets
     {
-        if compress_opts.lossy {
+        if compress_opts.drop_color {
             let png = image::open(&input_path)
                 .unwrap_or_else(|e| panic!("PNG 파일 열기에 실패했습니다:\n{e:?}"))
                 .to_rgba8();

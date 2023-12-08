@@ -10,19 +10,25 @@ pub struct Cli {
 
 #[derive(Parser)]
 pub enum Subcommand {
+    // #[command(
+    //     name = "dump",
+    //     about = "production DB로부터 local로 mongodump를 실행합니다"
+    // )]
+    // Dump(DumpCommand),
     #[command(
-        name = "dump",
-        about = "production DB로부터 local로 mongodump를 실행합니다"
+        name = "resize",
+        about = "이미지 파일 해상도 변경\nsprt resize -i path/to/input_dir [-f file_name] -o path/to/output_dir -w 1920 -h 1080"
     )]
-    Dump(DumpCommand),
-    #[command(name = "resize", about = "이미지 파일 해상도 변경")]
     Resize(ResizeCommand),
     #[command(
-        name = "comperss",
-        about = "이미지 손실/무손실 압축(손실 압축시 tiny png 사이트 방식)"
+        name = "compress",
+        about = "이미지 손실/무손실 압축(손실 압축시 tiny png 사이트 방식)\nsprt compress -i path/to/input_dir [-f file_name] -o path/to/output_dir -d"
     )]
     Compress(CompressCommand),
-    #[command(name = "webpify", about = "png/jpeg를 webp로 변환")]
+    #[command(
+        name = "webpify",
+        about = "png/jpeg를 webp로 변환\nsprt webpify -i path/to/input_dir -o path/to/output_dir"
+    )]
     Webpify(WebpifyCommand),
 }
 
@@ -74,7 +80,7 @@ pub struct CompressCommand {
     #[arg(short, long, default_value_t = 12, value_parser = 1..=12)]
     pub level: i64,
     #[arg(short, long)]
-    pub lossy: bool,
+    pub drop_color: bool,
     #[arg(short, long, default_value_t = 4, value_parser = 1..=10)]
     pub speed: i64,
     #[arg(short, long, default_value_t = 65, value_parser = 1..=100)]
