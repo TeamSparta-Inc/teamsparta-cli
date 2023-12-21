@@ -1,91 +1,123 @@
-use crate::{
-    cli::{DumpCommand, DumpServices},
-    config::MongoDumpServiceConfig,
+use crate::{cli::DumpCommand, config::MongoDumpInstruction};
+use std::{
+    collections::HashMap,
+    process::{Command, Stdio},
+    sync::Arc,
+    thread, vec,
 };
-use colored::*;
-use std::process::{exit, Command, Stdio};
+const MONGO_DUMP: &str = "mongodump";
+const MONGO_RESTORE: &str = "mongorestore";
 
-pub fn run_dump(dump_opts: DumpCommand, dump_service_config: MongoDumpServiceConfig) {
-    let dump_instruction = match dump_opts.service {
-        DumpServices::Chang => dump_service_config.chang,
-        DumpServices::Hhv2 => dump_service_config.hhv2,
-        DumpServices::Nbc => dump_service_config.nbc,
-        DumpServices::Online => dump_service_config.online,
-        DumpServices::Scc => dump_service_config.scc,
-        DumpServices::Swc => dump_service_config.swc,
-        DumpServices::Intellipick => dump_service_config.intellipick,
-        DumpServices::Backoffice => dump_service_config.backoffice,
-        DumpServices::BackofficeBootcamp => dump_service_config.backoffice_bootcamp,
-    };
+pub fn run_dump(
+    dump_opts: DumpCommand,
+    dump_service_config: HashMap<String, MongoDumpInstruction>,
+) {
+    let part_name = std::env::var("PART_NAME")
+        .unwrap_or_else(|_| panic!("global env variable PART_NAME not set"));
+    let dump_service_config = Arc::new(dump_service_config);
 
-    let mut dump_command = Command::new("mongodump");
-    let with_default_options = dump_command
-        .arg("--archive")
-        .arg("--gzip")
-        .arg(format!("--uri={}", dump_instruction.uri));
+    let dump_instruction: MongoDumpInstruction = dump_service_config
+        .get(&dump_opts.service)
+        .unwrap_or_else(|| panic!("service {} not found in config", dump_opts.service))
+        .clone();
 
-    let collection_targeted = {
-        if let Some(cols) = dump_opts.collection {
-            cols.iter().fold(with_default_options, |base, collection| {
-                base.arg(format!("--collection={}", collection))
-            })
+    let collection_targeted_commands = {
+        if let Some(family) = dump_opts.family {
+            let target_family = dump_instruction
+                .family
+                .get(&family)
+                .unwrap_or_else(|| panic!("family {} not found in config", family));
+
+            target_family
+                .iter()
+                .map(|member| {
+                    let mut dump_command = Command::new(MONGO_DUMP);
+
+                    let with_default_options = dump_command
+                        .arg("--archive")
+                        .arg("--gzip")
+                        .arg(format!("--uri={}", dump_instruction.source_uri))
+                        .arg(format!("--db={}", dump_instruction.db_name));
+
+                    with_default_options.arg(format!("--collection={}", member));
+
+                    dump_command
+                })
+                .collect()
+        } else if let Some(cols) = dump_opts.collections {
+            cols.iter()
+                .map(|col| {
+                    let mut dump_command = Command::new(MONGO_DUMP);
+
+                    let with_default_options = dump_command
+                        .arg("--archive")
+                        .arg("--gzip")
+                        .arg(format!("--uri={}", dump_instruction.source_uri))
+                        .arg(format!("--db={}", dump_instruction.db_name));
+
+                    with_default_options.arg(format!("--collection={}", col));
+
+                    dump_command
+                })
+                .collect()
         } else {
+            let mut dump_command = Command::new(MONGO_DUMP);
+
+            let with_default_options = dump_command
+                .arg("--archive")
+                .arg("--gzip")
+                .arg(format!("--uri={}", dump_instruction.source_uri))
+                .arg(format!("--db={}", dump_instruction.db_name));
+
             dump_instruction
                 .excludes
                 .iter()
                 .fold(with_default_options, |base, exclude| {
                     base.arg(format!("--excludeCollection={}", exclude))
-                })
+                });
+
+            vec![dump_command]
         }
     };
 
-    let mut restore_command = Command::new("mongorestore");
-    let mongo_restore = restore_command
-        .arg("--drop")
-        .arg("-h")
-        .arg(format!(
-            "0.0.0.0:{}",
-            if let Some(port) = dump_opts.port {
-                port
-            } else {
-                dump_instruction.target_port
-            }
-        ))
-        .arg("--gzip")
-        .arg("--archive");
+    let mut handles = vec![];
 
-    println!(
-        "{}\n{}\n\n{}\n{}",
-        "dump command to be executed:".bright_blue().bold(),
-        format!("{:?}", &collection_targeted).bold(),
-        "restore command to be executed after dump command done:"
-            .bright_blue()
-            .bold(),
-        format!("{:?}", &mongo_restore).bold()
-    );
+    for mut collection_targeted_command in collection_targeted_commands {
+        let part_name = part_name.clone();
+        let dump_instruction = dump_instruction.clone();
+        let handle = thread::spawn(move || {
+            let mut restore_command = Command::new(MONGO_RESTORE);
+            let mongo_restore = restore_command
+                .arg("--drop")
+                .arg(format!("--uri={}", &dump_instruction.target_uri))
+                .arg(format!("--nsFrom={}.*", dump_instruction.db_name))
+                .arg(format!(
+                    "--nsTo={}_{}.*",
+                    dump_instruction.db_name, part_name
+                ))
+                .arg("--gzip")
+                .arg("--archive");
+            let dump_child = collection_targeted_command
+                .stdout(Stdio::piped())
+                .spawn()
+                .expect("failed to launch mongodump");
+            let restore_child = mongo_restore
+                .stdin(dump_child.stdout.expect("fail to open mongodump stdout"))
+                .spawn()
+                .expect("failed to launch mongorestore");
 
-    let dump_child = collection_targeted
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .unwrap_or_else(|e| {
-            eprintln!("failed to execute mongodump command!:\n{}", e);
-            exit(1)
+            let restored = restore_child
+                .wait_with_output()
+                .expect("failed to wait output");
+
+            println!("{}", String::from_utf8_lossy(&restored.stdout));
+            eprintln!("{}", String::from_utf8_lossy(&restored.stderr));
         });
 
-    let restored = mongo_restore
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .stdin(dump_child.stdout.unwrap_or_else(|| {
-            eprintln!("failed to pipe mongodump stdout into mongorestore");
-            exit(1)
-        }))
-        .output()
-        .unwrap_or_else(|e| {
-            eprintln!("failed to execute mongorestore:\n{}", e);
-            exit(1)
-        });
+        handles.push(handle);
+    }
 
-    println!("{}", String::from_utf8_lossy(&restored.stdout));
-    eprintln!("{}", String::from_utf8_lossy(&restored.stderr));
+    for handle in handles {
+        handle.join().unwrap();
+    }
 }

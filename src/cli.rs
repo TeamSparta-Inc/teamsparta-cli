@@ -1,4 +1,4 @@
-use clap::{Parser, ValueEnum};
+use clap::Parser;
 use std::path::PathBuf;
 
 #[derive(Parser)]
@@ -10,11 +10,11 @@ pub struct Cli {
 
 #[derive(Parser)]
 pub enum Subcommand {
-    // #[command(
-    //     name = "dump",
-    //     about = "production DB로부터 local로 mongodump를 실행합니다"
-    // )]
-    // Dump(DumpCommand),
+    #[command(
+        name = "dump",
+        about = "source DB로부터 target DB로 mongodump & restore를 실행합니다"
+    )]
+    Dump(DumpCommand),
     #[command(
         name = "resize",
         about = "이미지 파일 해상도 변경\nsprt resize -i path/to/input_dir [-f file_name] -o path/to/output_dir -w 1920 -h 1080"
@@ -32,27 +32,14 @@ pub enum Subcommand {
     Webpify(WebpifyCommand),
 }
 
-#[derive(ValueEnum, Clone)]
-pub enum DumpServices {
-    Chang,
-    Online,
-    Swc,
-    Hhv2,
-    Nbc,
-    Scc,
-    Intellipick,
-    Backoffice,
-    BackofficeBootcamp,
-}
-
 #[derive(Parser)]
 pub struct DumpCommand {
     #[arg(short, long)]
-    pub service: DumpServices,
-    #[arg(short, long)]
-    pub port: Option<u32>,
+    pub service: String,
     #[arg(short, long, num_args(0..))]
-    pub collection: Option<Vec<String>>,
+    pub collections: Option<Vec<String>>,
+    #[arg(short, long)]
+    pub family: Option<String>,
 }
 
 #[derive(Parser)]

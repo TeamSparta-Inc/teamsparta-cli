@@ -1,30 +1,19 @@
 use serde::Deserialize;
 use serde_json::Result;
-use std::fs;
+use std::{collections::HashMap, fs};
 
 #[derive(Deserialize, Debug)]
 pub struct Config {
-    pub mongo_dump: MongoDumpServiceConfig,
+    pub mongo_dump: HashMap<String, MongoDumpInstruction>,
 }
 
-#[derive(Deserialize, Debug)]
-pub struct MongoDumpServiceConfig {
-    pub online: MongoDumpInstruction,
-    pub swc: MongoDumpInstruction,
-    pub hhv2: MongoDumpInstruction,
-    pub nbc: MongoDumpInstruction,
-    pub scc: MongoDumpInstruction,
-    pub chang: MongoDumpInstruction,
-    pub intellipick: MongoDumpInstruction,
-    pub backoffice: MongoDumpInstruction,
-    pub backoffice_bootcamp: MongoDumpInstruction,
-}
-
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct MongoDumpInstruction {
-    pub uri: String,
+    pub source_uri: String,
+    pub target_uri: String,
+    pub db_name: String,
     pub excludes: Vec<String>,
-    pub target_port: u32,
+    pub family: HashMap<String, Vec<String>>,
 }
 
 impl Config {

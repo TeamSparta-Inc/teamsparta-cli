@@ -7,7 +7,7 @@ function getBinary() {
     const getBinary = require("./getBinary");
 
     return getBinary();
-  } catch (err) {}
+  } catch {}
 }
 
 const binary = getBinary();
