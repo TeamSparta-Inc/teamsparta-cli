@@ -1,7 +1,5 @@
 # Team Sparta CLI
 
-## private으로 npm에 publish됩니다. package에 접근할 수 있더라도 다시 git repository가 private이므로 접근 권한이 없으면 에러가 나게 됩니다. @teamsparta organization에 가입되어 있으며, 로그인 되어 있어야합니다
-
 ## config파일이 없는 경우 동료 개발자들에게 문의해주세요
 
 1. dump: 프로덕션 데이터베이스로부터 로컬로 덤프
@@ -26,7 +24,7 @@
    - output-dir, o: path string
    - file-name, f: string (optional 명시하지 않을 경우 input-dir 내 모든 png 파일 압축)
    - (무손실 압축시) level, l: number (optional 압축율(1~12). 높을수록 더 압축. 기본값 12)
-   - lossy, l: 손실 압축 명시
+   - drop-color, d: 손실 압축 명시
      - (손실 압축시) quality, q: 품질 최댓값(optional 1~100)(default:65, 최솟값은 0 고정)
      - (손실 압축시) speed, s: 압축 속도(optional 1~10, 기본 값: 4, 속도를 희생해서 압축률을 높일 수 있습니다)
 

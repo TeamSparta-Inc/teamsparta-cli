@@ -1,0 +1,50 @@
+{
+  "mongo_dump": {
+    "online": {
+      "source_uri": "mongodb+srv://spartaadmin:wkvejZFE7dSe4jfI@sparta-online.oa8nf.mongodb.net",
+      "target_uri": "mongodb+srv://test:test@test.oa8nf.mongodb.net",
+      "db_name": "dbonline_v2",
+      "excludes": [
+        "orders",
+        "points_users_logs",
+        "points_users_logs_detail",
+        "login_sessions",
+        "gov_enrolleds_dashboard",
+        "points_users_logs",
+        "points_users_logs_detail",
+        "gov_auth_logs",
+        "points_users_chances_logs",
+        "phone_verification_request_log",
+        "phone_verification_log",
+        "payment_access_log",
+        "alimtalk_logs",
+        "earlybird_logs",
+        "xmas_24_alerts",
+        "login_sessions",
+        "points_users",
+        "pycharm_licenses",
+        "alimtalk_error",
+        "certificates",
+        "checkins",
+        "rounds_lectures_reviews",
+        "coupon_user",
+        "cheerups",
+        "ratings",
+        "nps",
+        "users_race_groups",
+        "pre_homeworks",
+        "enrolleds_dashboard",
+        "crm_logs",
+        "login_kko"
+      ],
+      "family": {
+        "round": [
+          "rounds",
+          "rounds_homeworks",
+          "rounds_lectures",
+          "rounds_materials"
+        ]
+      }
+    }
+  }
+}
