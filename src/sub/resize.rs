@@ -1,4 +1,4 @@
-use crate::cli::ResizeCommand;
+use crate::{cli::ResizeCommand, exit_with_error};
 use fast_image_resize as fr;
 use image::{
     codecs::{jpeg::JpegEncoder, png::PngEncoder},
@@ -79,14 +79,14 @@ pub fn run_resize(resize_opts: ResizeCommand) {
                 work_dir: work_dir.to_owned(),
                 image_type: ImageType::Png,
             }],
-            _ => panic!(
+            _ => exit_with_error!(
                 "올바른 경로가 아니거나, jpeg 혹은 png 파일이 아닙니다. 파일명: {}",
                 file_name
             ),
         }
     } else {
         std::fs::read_dir(&resize_opts.input_dir)
-            .unwrap_or_else(|e| panic!("이미지 디렉토리 읽기 실패:\n{}", e))
+            .unwrap_or_else(|e| exit_with_error!("이미지 디렉토리 읽기 실패:\n{}", e))
             .map(|result_entry| result_entry.unwrap().file_name())
             .filter_map(|file_name| {
                 let ext = path::Path::new(&file_name)

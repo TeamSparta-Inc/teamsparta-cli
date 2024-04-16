@@ -6,6 +6,7 @@ use walkdir::WalkDir;
 use webp::{Encoder, WebPMemory};
 
 use crate::cli::WebpifyCommand;
+use crate::exit_with_error;
 
 fn is_jpeg_or_png(ext: &str) -> bool {
     ext == "png" || ext == "jpeg" || ext == "jpg"
@@ -30,7 +31,7 @@ pub fn run_webpify(webpify_opts: WebpifyCommand) {
                     let dyn_image: DynamicImage = match image {
                         Ok(img) => img.with_guessed_format().unwrap().decode().unwrap(), //ImageReader::with_guessed_format() function guesses if image needs to be opened in JPEG or PNG format.
                         Err(e) => {
-                            panic!("Error: {}", e);
+                            exit_with_error!("Error: {}", e);
                         }
                     };
 

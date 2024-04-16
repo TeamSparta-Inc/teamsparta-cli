@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 use std::path::PathBuf;
 
 #[derive(Parser)]
@@ -30,6 +30,11 @@ pub enum Subcommand {
         about = "png/jpeg를 webp로 변환\nsprt webpify -i path/to/input_dir -o path/to/output_dir"
     )]
     Webpify(WebpifyCommand),
+    #[command(
+        name = "cred",
+        about = "개발용 credential 반환\n등록: sprt cred -m register -u [USER_NAME] -p [PASSWORD] -c [CONFIRM_PASSWORD] --aws-access-key-id [ACCESS_KEY_ID] --aws-secret-access-key [SECRET_ACCESS_KEY]"
+    )]
+    Cred(CredCommand),
 }
 
 #[derive(Parser)]
@@ -79,4 +84,28 @@ pub struct WebpifyCommand {
     pub input_dir: PathBuf,
     #[arg(short, long)]
     pub output_dir: PathBuf,
+}
+
+#[derive(Parser)]
+pub struct CredCommand {
+    #[arg(short, long, value_enum)]
+    pub mode: CredMode,
+    #[arg(short, long)]
+    pub user_name: Option<String>,
+    #[arg(short, long)]
+    pub password: Option<String>,
+    #[arg(short, long)]
+    pub confirm_password: Option<String>,
+    #[arg(long)]
+    pub aws_access_key_id: Option<String>,
+    #[arg(long)]
+    pub aws_secret_access_key: Option<String>,
+}
+
+#[derive(ValueEnum, Clone)]
+pub enum CredMode {
+    Develop,
+    Private,
+    Register,
+    Update,
 }

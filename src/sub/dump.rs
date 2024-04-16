@@ -1,4 +1,4 @@
-use crate::{cli::DumpCommand, config::MongoDumpInstruction};
+use crate::{cli::DumpCommand, config::MongoDumpInstruction, exit_with_error};
 use std::{
     collections::HashMap,
     process::{Command, Stdio},
@@ -13,12 +13,12 @@ pub fn run_dump(
     dump_service_config: HashMap<String, MongoDumpInstruction>,
 ) {
     let part_name = std::env::var("PART_NAME")
-        .unwrap_or_else(|_| panic!("global env variable PART_NAME not set"));
+        .unwrap_or_else(|_| exit_with_error!("global env variable PART_NAME not set"));
     let dump_service_config = Arc::new(dump_service_config);
 
     let dump_instruction: MongoDumpInstruction = dump_service_config
         .get(&dump_opts.service)
-        .unwrap_or_else(|| panic!("service {} not found in config", dump_opts.service))
+        .unwrap_or_else(|| exit_with_error!("service {} not found in config", dump_opts.service))
         .clone();
 
     let collection_targeted_commands = {
@@ -26,7 +26,7 @@ pub fn run_dump(
             let target_family = dump_instruction
                 .family
                 .get(&family)
-                .unwrap_or_else(|| panic!("family {} not found in config", family));
+                .unwrap_or_else(|| exit_with_error!("family {} not found in config", family));
 
             target_family
                 .iter()
