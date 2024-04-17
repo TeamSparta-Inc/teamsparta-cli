@@ -109,4 +109,5 @@ pub enum CredMode {
     Register,
     Update,
     Awscli,
+    Session,
 }
