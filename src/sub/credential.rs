@@ -24,55 +24,60 @@ pub async fn run_credential(cred_opts: CredCommand) {
     let file = OpenOptions::new()
         .read(true)
         .write(true)
-        .create_new(true)
+        .create(true)
         .open("/etc/sprt/session");
 
     let mut session_key = String::new();
     let now = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .expect("We are in the past");
-    if let Ok(mut file_content) = file {
-        let mut content = String::new();
-        file_content.read_to_string(&mut content).unwrap();
+    match file {
+        Ok(mut file_content) => {
+            let mut content = String::new();
+            file_content.read_to_string(&mut content).unwrap();
 
-        if content.is_empty() {
-            let new_session_key = Uuid::new_v4().to_string();
-            let utc_millis = now.as_millis().to_string();
+            if content.is_empty() {
+                let new_session_key = Uuid::new_v4().to_string();
+                let utc_millis = now.as_millis().to_string();
 
-            writeln!(file_content, "{} {}", new_session_key, utc_millis).unwrap();
-            session_key = new_session_key;
-        } else {
-            let session_id_and_updated_at: Vec<&str> = content
-                .lines()
-                .last()
-                .expect("cannot take last line of session")
-                .split(' ')
-                .collect();
+                writeln!(file_content, "{} {}", new_session_key, utc_millis).unwrap();
+                session_key = new_session_key;
+            } else {
+                let session_id_and_updated_at: Vec<&str> = content
+                    .lines()
+                    .last()
+                    .expect("cannot take last line of session")
+                    .split(' ')
+                    .collect();
 
-            if session_id_and_updated_at.len() < 2 {
-                exit_with_error!("session exists but malformed")
-            }
-
-            let (existing_session_key, updated_at) = (
-                session_id_and_updated_at.first().unwrap().to_owned(),
-                session_id_and_updated_at.get(1).unwrap().to_owned(),
-            );
-
-            if let Ok(updated_at_millis) = updated_at.parse::<u128>() {
-                let now_millis = now.as_millis();
-                if now_millis < updated_at_millis {
-                    exit_with_error!("session exists but maybe system time exploited")
+                if session_id_and_updated_at.len() < 2 {
+                    exit_with_error!("session exists but malformed")
                 }
-                if now_millis - updated_at_millis > MILLISECONDS_IN_AN_HOUR {
-                    let new_session_key = Uuid::new_v4().to_string();
-                    let utc_millis = now.as_millis().to_string();
 
-                    writeln!(file_content, "{} {}", new_session_key, utc_millis).unwrap();
-                    session_key = new_session_key;
-                } else {
-                    session_key = existing_session_key.into()
+                let (existing_session_key, updated_at) = (
+                    session_id_and_updated_at.first().unwrap().to_owned(),
+                    session_id_and_updated_at.get(1).unwrap().to_owned(),
+                );
+
+                if let Ok(updated_at_millis) = updated_at.parse::<u128>() {
+                    let now_millis = now.as_millis();
+                    if now_millis < updated_at_millis {
+                        exit_with_error!("session exists but maybe system time exploited")
+                    }
+                    if now_millis - updated_at_millis > MILLISECONDS_IN_AN_HOUR {
+                        let new_session_key = Uuid::new_v4().to_string();
+                        let utc_millis = now.as_millis().to_string();
+
+                        writeln!(file_content, "{} {}", new_session_key, utc_millis).unwrap();
+                        session_key = new_session_key;
+                    } else {
+                        session_key = existing_session_key.into()
+                    }
                 }
             }
+        }
+        Err(open_err) => {
+            panic!("{}", open_err);
         }
     }
 
