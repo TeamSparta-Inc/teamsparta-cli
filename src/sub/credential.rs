@@ -223,6 +223,9 @@ pub async fn run_credential(cred_opts: CredCommand) {
             if session_key.is_empty() {
                 exit_with_error!("cannot read session key. try sudo mode")
             }
+            if cred_opts.user_name.is_none() || cred_opts.password.is_none() {
+                exit_with_error!("session mode needs --user-name --password")
+            }
 
             let user_name = cred_opts.user_name.unwrap_or_default();
             let password = cred_opts.password.unwrap_or_default();
