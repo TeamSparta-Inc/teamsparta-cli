@@ -11,6 +11,7 @@ about = "cli-tool for team sparta developers"
 chrono = "0.4.26"
 clap = {version = "4.3.4", features = ["derive"]}
 colored = "2.0.0"
+dirs = "5.0.1"
 dotenv = "0.15.0"
 fast_image_resize = "2.7.3"
 image = "0.24.6"

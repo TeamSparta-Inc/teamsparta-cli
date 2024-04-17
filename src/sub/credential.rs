@@ -12,6 +12,7 @@ use std::{
 use uuid::Uuid;
 const MILLISECONDS_IN_AN_HOUR: u128 = 3600 * 1000;
 const GCS_CREDENTIAL_URL: &str = "https://gcs.spartacodingclub.com/credential/";
+const SESSION_SUFFIX: &str = "sprt/session";
 
 fn path(path: &str) -> String {
     let base = Path::new(GCS_CREDENTIAL_URL);
@@ -21,11 +22,13 @@ fn path(path: &str) -> String {
 pub async fn run_credential(cred_opts: CredCommand) {
     let client = reqwest::Client::new();
     let mut body = HashMap::new();
+    let home_dir = dirs::home_dir().expect("failed to get home dir");
+    let session_path = home_dir.join(SESSION_SUFFIX);
     let file = OpenOptions::new()
         .read(true)
         .write(true)
         .create(true)
-        .open("/etc/sprt/session");
+        .open(session_path);
 
     let mut session_key = String::new();
     let now = SystemTime::now()
