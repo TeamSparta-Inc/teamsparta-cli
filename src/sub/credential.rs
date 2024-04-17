@@ -77,7 +77,7 @@ pub async fn run_credential(cred_opts: CredCommand) {
             }
         }
         Err(open_err) => {
-            panic!("{}", open_err);
+            eprintln!("cannot use credential session by error: {}\nif \"Permission denied\", try sudo mode", open_err);
         }
     }
 
@@ -190,6 +190,31 @@ pub async fn run_credential(cred_opts: CredCommand) {
             if !status.is_success() {
                 println!("{}", response_text);
                 exit_with_error!("failed to update credentials")
+            }
+
+            println!("{}", response_text)
+        }
+        CredMode::Awscli => {
+            let user_name = cred_opts.user_name.unwrap_or_default();
+            let password = cred_opts.password.unwrap_or_default();
+
+            body.insert("user_name", user_name);
+            body.insert("password", password);
+            body.insert("private_key", session_key);
+
+            let result = client
+                .post(path("aws-cli"))
+                .json(&body)
+                .send()
+                .await
+                .expect("failed to fetch private credentials");
+
+            let status = result.status();
+            let response_text = result.text().await.expect("failed to text response");
+
+            if !status.is_success() {
+                println!("{}", response_text);
+                exit_with_error!("failed to fetch private credentials")
             }
 
             println!("{}", response_text)

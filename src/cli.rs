@@ -108,4 +108,5 @@ pub enum CredMode {
     Private,
     Register,
     Update,
+    Awscli,
 }
