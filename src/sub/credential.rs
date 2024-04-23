@@ -10,7 +10,7 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 use uuid::Uuid;
-const MILLISECONDS_IN_AN_HOUR: u128 = 3600 * 1000;
+const MILLISECONDS_IN_A_DAY: u128 = 24 * 3600 * 1000;
 const GCS_CREDENTIAL_URL: &str = "https://gcs.spartacodingclub.com/credential/";
 const SESSION_SUFFIX: &str = "sprt/session";
 
@@ -67,7 +67,7 @@ pub async fn run_credential(cred_opts: CredCommand) {
                     if now_millis < updated_at_millis {
                         exit_with_error!("session exists but maybe system time exploited")
                     }
-                    if now_millis - updated_at_millis > MILLISECONDS_IN_AN_HOUR {
+                    if now_millis - updated_at_millis > MILLISECONDS_IN_A_DAY {
                         let new_session_key = Uuid::new_v4().to_string();
                         let utc_millis = now.as_millis().to_string();
 
@@ -210,14 +210,14 @@ pub async fn run_credential(cred_opts: CredCommand) {
                 .json(&body)
                 .send()
                 .await
-                .expect("failed to fetch private credentials");
+                .expect("failed to fetch aws-cli credentials");
 
             let status = result.status();
             let response_text = result.text().await.expect("failed to text response");
 
             if !status.is_success() {
                 println!("{}", response_text);
-                exit_with_error!("failed to fetch private credentials")
+                exit_with_error!("failed to fetch aws-cli credentials")
             }
 
             println!("{}", response_text)
@@ -252,7 +252,7 @@ pub async fn run_credential(cred_opts: CredCommand) {
                 exit_with_error!("failed to fetch private credentials")
             }
 
-            println!("1hour session made")
+            println!("24 hours session made")
         }
     }
 }
