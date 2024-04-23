@@ -92,7 +92,7 @@ pub async fn run_credential(cred_opts: CredCommand) {
                 || cred_opts.aws_access_key_id.is_none()
                 || cred_opts.aws_secret_access_key.is_none()
             {
-                exit_with_error!("Values missing! register needs --user-name --password --aws_access_key_id --aws_secret_access_key")
+                exit_with_error!("Value missing! register needs --user-name --password --confirm-password --aws-access-key-id --aws-secret-access-key")
             }
 
             body.insert("user_name", cred_opts.user_name.unwrap());
