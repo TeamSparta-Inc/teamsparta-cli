@@ -144,6 +144,7 @@ pub async fn run_credential(cred_opts: CredCommand) {
 
             body.insert("user_name", user_name);
             body.insert("password", password);
+            body.insert("private_key", session_key);
 
             let result = client
                 .post(path("private"))
