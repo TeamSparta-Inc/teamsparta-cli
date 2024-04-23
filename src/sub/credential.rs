@@ -254,5 +254,29 @@ pub async fn run_credential(cred_opts: CredCommand) {
 
             println!("24 hours session made")
         }
+        CredMode::Revoke => {
+            if session_key.is_empty() {
+                exit_with_error!("cannot read session key. try sudo mode")
+            }
+
+            body.insert("private_key", session_key);
+
+            let result = client
+                .post(path("revoke"))
+                .json(&body)
+                .send()
+                .await
+                .expect("failed to revoke session");
+
+            let status = result.status();
+            let response_text = result.text().await.expect("failed to text response");
+
+            if !status.is_success() {
+                println!("{}", response_text);
+                exit_with_error!("failed to revoke session")
+            }
+
+            println!("{}", response_text)
+        }
     }
 }
