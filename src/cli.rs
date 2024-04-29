@@ -100,6 +100,12 @@ pub struct CredCommand {
     pub aws_access_key_id: Option<String>,
     #[arg(long)]
     pub aws_secret_access_key: Option<String>,
+    #[arg(long)]
+    pub arn: Option<String>,
+    #[arg(long)]
+    pub profile: Option<String>,
+    #[arg(short, long)]
+    pub region: Option<String>,
 }
 
 #[derive(ValueEnum, Clone)]
@@ -111,4 +117,5 @@ pub enum CredMode {
     Awscli,
     Session,
     Revoke,
+    AddProfile,
 }

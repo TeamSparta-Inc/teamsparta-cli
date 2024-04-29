@@ -4,6 +4,7 @@ use crate::{
 };
 use std::{
     collections::HashMap,
+    env,
     fs::OpenOptions,
     io::{Read, Write},
     path::Path,
@@ -15,7 +16,12 @@ const GCS_CREDENTIAL_URL: &str = "https://gcs.spartacodingclub.com/credential/";
 const SESSION_SUFFIX: &str = "sprt/session";
 
 fn path(path: &str) -> String {
-    let base = Path::new(GCS_CREDENTIAL_URL);
+    let credential_uri: &str = if env::var("ENV").unwrap_or_default() == "dev" {
+        "http://localhost:8080/credential/"
+    } else {
+        GCS_CREDENTIAL_URL
+    };
+    let base = Path::new(credential_uri);
     base.join(path).to_str().expect("invalid url").to_owned()
 }
 
@@ -200,10 +206,12 @@ pub async fn run_credential(cred_opts: CredCommand) {
         CredMode::Awscli => {
             let user_name = cred_opts.user_name.unwrap_or_default();
             let password = cred_opts.password.unwrap_or_default();
+            let profile = cred_opts.profile.unwrap_or_default();
 
             body.insert("user_name", user_name);
             body.insert("password", password);
             body.insert("private_key", session_key);
+            body.insert("profile_name", profile);
 
             let result = client
                 .post(path("aws-cli"))
@@ -232,10 +240,12 @@ pub async fn run_credential(cred_opts: CredCommand) {
 
             let user_name = cred_opts.user_name.unwrap_or_default();
             let password = cred_opts.password.unwrap_or_default();
+            let profile = cred_opts.profile.unwrap_or_default();
 
             body.insert("user_name", user_name);
             body.insert("password", password);
             body.insert("private_key", session_key);
+            body.insert("profile_name", profile);
 
             let result = client
                 .post(path("session"))
@@ -274,6 +284,38 @@ pub async fn run_credential(cred_opts: CredCommand) {
             if !status.is_success() {
                 println!("{}", response_text);
                 exit_with_error!("failed to revoke session")
+            }
+
+            println!("{}", response_text)
+        }
+        CredMode::AddProfile => {
+            if cred_opts.user_name.is_none()
+                || cred_opts.password.is_none()
+                || cred_opts.arn.is_none()
+                || cred_opts.profile.is_none()
+            {
+                exit_with_error!("add-profile needs --user-name --password --arn --profile")
+            }
+
+            body.insert("user_name", cred_opts.user_name.unwrap());
+            body.insert("password", cred_opts.password.unwrap());
+            body.insert("arn", cred_opts.arn.unwrap());
+            body.insert("profile_name", cred_opts.profile.unwrap());
+            body.insert("region", cred_opts.region.unwrap_or_default());
+
+            let response = client
+                .post(path("add-profile"))
+                .json(&body)
+                .send()
+                .await
+                .expect("failed to add profile");
+
+            let status = response.status();
+            let response_text = response.text().await.expect("failed to text response");
+
+            if !status.is_success() {
+                println!("{}", response_text);
+                exit_with_error!("failed to add profile")
             }
 
             println!("{}", response_text)
