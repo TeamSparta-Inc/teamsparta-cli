@@ -294,7 +294,9 @@ pub async fn run_credential(cred_opts: CredCommand) {
                 || cred_opts.arn.is_none()
                 || cred_opts.profile.is_none()
             {
-                exit_with_error!("add-profile needs --user-name --password --arn --profile")
+                exit_with_error!(
+                    "add-profile needs --user-name --password --arn --profile --region(optional)"
+                )
             }
 
             body.insert("user_name", cred_opts.user_name.unwrap());
@@ -316,6 +318,38 @@ pub async fn run_credential(cred_opts: CredCommand) {
             if !status.is_success() {
                 println!("{}", response_text);
                 exit_with_error!("failed to add profile")
+            }
+
+            println!("{}", response_text)
+        }
+        CredMode::UpdateProfile => {
+            if cred_opts.user_name.is_none()
+                || cred_opts.password.is_none()
+                || cred_opts.arn.is_none()
+                || cred_opts.profile.is_none()
+            {
+                exit_with_error!("update-profile needs --user-name --password --arn --profile --region(optional)")
+            }
+
+            body.insert("user_name", cred_opts.user_name.unwrap());
+            body.insert("password", cred_opts.password.unwrap());
+            body.insert("arn", cred_opts.arn.unwrap());
+            body.insert("profile_name", cred_opts.profile.unwrap());
+            body.insert("region", cred_opts.region.unwrap_or_default());
+
+            let response = client
+                .post(path("update-profile"))
+                .json(&body)
+                .send()
+                .await
+                .expect("failed to update profile");
+
+            let status = response.status();
+            let response_text = response.text().await.expect("failed to text response");
+
+            if !status.is_success() {
+                println!("{}", response_text);
+                exit_with_error!("failed to update profile")
             }
 
             println!("{}", response_text)

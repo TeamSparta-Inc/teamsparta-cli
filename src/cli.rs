@@ -118,4 +118,5 @@ pub enum CredMode {
     Session,
     Revoke,
     AddProfile,
+    UpdateProfile,
 }
