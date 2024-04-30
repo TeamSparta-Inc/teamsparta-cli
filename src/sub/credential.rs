@@ -85,8 +85,8 @@ pub async fn run_credential(cred_opts: CredCommand) {
                 }
             }
         }
-        Err(open_err) => {
-            eprintln!("cannot use credential session by error: {}\nif \"Permission denied\", try sudo mode", open_err);
+        Err(_) => {
+            eprintln!("couldn't use session. if you want to use session, try sudo mode");
         }
     }
 
