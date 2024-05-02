@@ -301,7 +301,7 @@ pub async fn run_credential(cred_opts: CredCommand) {
 
             body.insert("user_name", cred_opts.user_name.unwrap());
             body.insert("password", cred_opts.password.unwrap());
-            body.insert("arn", cred_opts.arn.unwrap());
+            body.insert("role_arn", cred_opts.role_arn.unwrap());
             body.insert("profile_name", cred_opts.profile.unwrap());
             body.insert("region", cred_opts.region.unwrap_or_default());
 
@@ -325,7 +325,7 @@ pub async fn run_credential(cred_opts: CredCommand) {
         CredMode::UpdateProfile => {
             if cred_opts.user_name.is_none()
                 || cred_opts.password.is_none()
-                || cred_opts.arn.is_none()
+                || cred_opts.role_arn.is_none()
                 || cred_opts.profile.is_none()
             {
                 exit_with_error!("update-profile needs --user-name --password --arn --profile --region(optional)")
@@ -333,7 +333,7 @@ pub async fn run_credential(cred_opts: CredCommand) {
 
             body.insert("user_name", cred_opts.user_name.unwrap());
             body.insert("password", cred_opts.password.unwrap());
-            body.insert("arn", cred_opts.arn.unwrap());
+            body.insert("role_arn", cred_opts.role_arn.unwrap());
             body.insert("profile_name", cred_opts.profile.unwrap());
             body.insert("region", cred_opts.region.unwrap_or_default());
 
