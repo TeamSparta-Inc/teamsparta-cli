@@ -291,11 +291,11 @@ pub async fn run_credential(cred_opts: CredCommand) {
         CredMode::AddProfile => {
             if cred_opts.user_name.is_none()
                 || cred_opts.password.is_none()
-                || cred_opts.arn.is_none()
+                || cred_opts.role_arn.is_none()
                 || cred_opts.profile.is_none()
             {
                 exit_with_error!(
-                    "add-profile needs --user-name --password --arn --profile --region(optional)"
+                    "add-profile needs --user-name --password --role-arn --profile --region(optional)"
                 )
             }
 

@@ -101,7 +101,7 @@ pub struct CredCommand {
     #[arg(long)]
     pub aws_secret_access_key: Option<String>,
     #[arg(long)]
-    pub arn: Option<String>,
+    pub role_arn: Option<String>,
     #[arg(long)]
     pub profile: Option<String>,
     #[arg(short, long)]
