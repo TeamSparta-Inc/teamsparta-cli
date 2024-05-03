@@ -175,7 +175,7 @@ pub async fn run_credential(cred_opts: CredCommand) {
                 || cred_opts.aws_access_key_id.is_none()
                 || cred_opts.aws_secret_access_key.is_none()
             {
-                exit_with_error!("credential update need --user-name --password --aws-access-key-id --aws-secret_access_key")
+                exit_with_error!("credential update need --user-name --password --aws-access-key-id --aws-secret-access-key")
             }
 
             body.insert("user_name", cred_opts.user_name.unwrap());
@@ -328,7 +328,7 @@ pub async fn run_credential(cred_opts: CredCommand) {
                 || cred_opts.role_arn.is_none()
                 || cred_opts.profile.is_none()
             {
-                exit_with_error!("update-profile needs --user-name --password --arn --profile --region(optional)")
+                exit_with_error!("update-profile needs --user-name --password --role-arn --profile --region(optional)")
             }
 
             body.insert("user_name", cred_opts.user_name.unwrap());
