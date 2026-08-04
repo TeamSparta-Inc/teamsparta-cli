@@ -1,8 +1,8 @@
 {
   "mongo_dump": {
     "online": {
-      "source_uri": "mongodb+srv://spartaadmin:wkvejZFE7dSe4jfI@sparta-online.oa8nf.mongodb.net",
-      "target_uri": "mongodb+srv://test:test@test.oa8nf.mongodb.net",
+      "source_uri": "mongodb+srv://<user>:<password>@sparta-online.oa8nf.mongodb.net",
+      "target_uri": "mongodb+srv://<user>:<password>@test.oa8nf.mongodb.net",
       "db_name": "dbonline_v2",
       "excludes": [
         "orders",
